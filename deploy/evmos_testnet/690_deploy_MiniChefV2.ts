@@ -93,6 +93,17 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       false,
       false,
     )
+
+    // Transfer 1 month worth of LM rewards to MiniChefV2
+    await execute(
+      "KNS",
+      { from: deployer, log: true },
+      "transfer",
+      (
+        await get("MiniChefV2")
+      ).address,
+      TOTAL_LM_REWARDS.div(6),
+    )
   }
 }
 export default func

@@ -6,16 +6,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy, get } = deployments
   const { libraryDeployer } = await getNamedAccounts()
 
-  await deploy("SwapFlashLoan", {
+  await deploy("MetaSwapUtils", {
     from: libraryDeployer,
     log: true,
-    libraries: {
-      SwapUtils: (await get("SwapUtils")).address,
-      AmplificationUtils: (await get("AmplificationUtils")).address,
-    },
     skipIfAlreadyDeployed: true,
   })
 }
 export default func
-func.tags = ["SwapFlashLoan"]
-func.dependencies = ["AmplificationUtils", "SwapUtils"]
+func.tags = ["MetaSwapUtils"]

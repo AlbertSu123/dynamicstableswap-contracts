@@ -53,42 +53,42 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       BigNumber.from(SPA_MINTED).div(10),
     )
     const rewardPerSecond = TOTAL_LM_REWARDS.div(6 * 4 * 7 * 24 * 3600) // SPA reward per second
-    // await execute(
-    //   "SPA",
-    //   { from: deployer, log: true },
-    //   "approve",
-    //   (
-    //     await get("SimpleRewarder_SPA")
-    //   ).address,
-    //   TOTAL_LM_REWARDS,
-    // )
-    // await execute(
-    //   "SPA",
-    //   { from: deployer, log: true },
-    //   "transfer",
-    //   (
-    //     await get("SimpleRewarder_SPA")
-    //   ).address,
-    //   TOTAL_LM_REWARDS,
-    // )
-    // await execute(
-    //   "SPA",
-    //   { from: deployer, log: true },
-    //   "approve",
-    //   (
-    //     await get("MiniChefV2")
-    //   ).address,
-    //   TOTAL_LM_REWARDS,
-    // )
-    // await execute(
-    //   "SPA",
-    //   { from: deployer, log: true },
-    //   "transfer",
-    //   (
-    //     await get("MiniChefV2")
-    //   ).address,
-    //   TOTAL_LM_REWARDS,
-    // )
+    await execute(
+      "SPA",
+      { from: deployer, log: true },
+      "approve",
+      (
+        await get("SimpleRewarder_SPA")
+      ).address,
+      TOTAL_LM_REWARDS,
+    )
+    await execute(
+      "SPA",
+      { from: deployer, log: true },
+      "transfer",
+      (
+        await get("SimpleRewarder_SPA")
+      ).address,
+      TOTAL_LM_REWARDS,
+    )
+    await execute(
+      "SPA",
+      { from: deployer, log: true },
+      "approve",
+      (
+        await get("MiniChefV2")
+      ).address,
+      TOTAL_LM_REWARDS,
+    )
+    await execute(
+      "SPA",
+      { from: deployer, log: true },
+      "transfer",
+      (
+        await get("MiniChefV2")
+      ).address,
+      TOTAL_LM_REWARDS,
+    )
 
     // Ensure pid is correct
     // expect(await read("MiniChefV2", "lpToken", PID)).to.eq(lpToken)

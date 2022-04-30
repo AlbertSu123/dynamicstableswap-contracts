@@ -58,9 +58,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       "MiniChefV2",
       { from: deployer, log: true },
       "add",
-      1,
+      0,
       lpToken,
-      ZERO_ADDRESS,
+      (
+        await get("SimpleRewarder_SPA")
+      ).address,
     )
 
     // Ensure pid is correct

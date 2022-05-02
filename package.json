@@ -58,6 +58,7 @@
     "typescript": "^4.6.3"
   },
   "scripts": {
+    "chain:evmos": "npx hardhat node --fork https://eth.bd.evmos.org:8545/",
     "lint": "npm run lint:ts && npm run lint:sol && npm run lint:json",
     "lint:fix": "npm run lint:fix:ts && npm run lint:fix:sol && npm run lint:fix:json",
     "lint:ts": "eslint --ext ts test/ && eslint --ext ts deploy/ && prettier --list-different {test,deploy}/**/*.ts",

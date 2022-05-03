@@ -7,19 +7,19 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployer } = await getNamedAccounts()
 
   // Manually check if the pool is already deployed
-  const saddleEvmos3pool = await getOrNull("SaddleEvmos3pool")
-  if (saddleEvmos3pool) {
-    log(`reusing "Evmos3poolTokens" at ${saddleEvmos3pool.address}`)
+  const kinesisEvmos3pool = await getOrNull("kinesisEvmos3pool")
+  if (kinesisEvmos3pool) {
+    log(`reusing "Evmos3poolTokens" at ${kinesisEvmos3pool.address}`)
   } else {
     // Constructor arguments
     const TOKEN_ADDRESSES = [
-      (await get("DAI")).address,
+      (await get("FRAX")).address,
       (await get("USDC")).address,
       (await get("USDT")).address,
     ]
     const TOKEN_DECIMALS = [18, 6, 6]
-    const LP_TOKEN_NAME = "Saddle 3pool"
-    const LP_TOKEN_SYMBOL = "saddleEvmosUSD"
+    const LP_TOKEN_NAME = "kinesis 3pool"
+    const LP_TOKEN_SYMBOL = "kinesisEvmosUSD"
     const INITIAL_A = 400
     const SWAP_FEE = 4e6 // 4bps
     const ADMIN_FEE = 0
@@ -40,21 +40,21 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       ).address,
     )
 
-    await save("SaddleEvmos3pool", {
+    await save("kinesisEvmos3pool", {
       abi: (await get("SwapFlashLoan")).abi,
       address: (await get("SwapFlashLoan")).address,
     })
 
-    const lpTokenAddress = (await read("SaddleEvmos3pool", "swapStorage"))
+    const lpTokenAddress = (await read("kinesisEvmos3pool", "swapStorage"))
       .lpToken
-    log(`Saddle Evmos USD Pool LP Token at ${lpTokenAddress}`)
+    log(`kinesis Evmos USD Pool LP Token at ${lpTokenAddress}`)
 
-    await save("SaddleEvmos3poolLPToken", {
+    await save("kinesisEvmos3poolLPToken", {
       abi: (await get("LPToken")).abi, // LPToken ABI
       address: lpTokenAddress,
     })
   }
 }
 export default func
-func.tags = ["SaddleEvmos3pool"]
+func.tags = ["kinesisEvmos3pool"]
 func.dependencies = ["SwapUtils", "SwapFlashLoan", "Evmos3poolTokens"]

@@ -20,8 +20,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       "LPToken",
       { from: libraryDeployer, log: true },
       "initialize",
-      "Saddle LP Token (Target)",
-      "saddleLPTokenTarget",
+      "kinesis LP Token (Target)",
+      "kinesisLPTokenTarget",
     )
   }
 }

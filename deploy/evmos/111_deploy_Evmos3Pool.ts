@@ -13,9 +13,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   } else {
     // Constructor arguments
     const TOKEN_ADDRESSES = [
-      (await get("FRAX")).address,
-      (await get("USDC")).address,
-      (await get("USDT")).address,
+      "0xE03494D0033687543a80c9B1ca7D6237F2EA8BD8",
+      "0x51e44FfaD5C2B122C8b635671FCC8139dc636E82",
+      "0x7FF4a56B32ee13D7D4D405887E0eA37d61Ed919e",
     ]
     const TOKEN_DECIMALS = [18, 6, 6]
     const LP_TOKEN_NAME = "kinesis 3pool"

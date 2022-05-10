@@ -4,7 +4,7 @@ import { isTestNetwork } from "../../utils/network"
 import { BigNumber } from "ethers"
 
 const USD_TOKENS_ARGS: { [token: string]: any[] } = {
-  DAI: ["Frax", "FRAX", "18"],
+  FRAX: ["Frax", "FRAX", "18"],
   USDC: ["USD Coin", "USDC", "6"],
   USDT: ["Tether USD", "USDT", "6"],
 }

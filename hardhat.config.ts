@@ -27,6 +27,10 @@ let config: HardhatUserConfig = {
       deploy: ["./deploy/mainnet/"],
       autoImpersonate: true,
     },
+    localhost: {
+      deploy: ["./deploy/evmos/"],
+      autoImpersonate: true,
+    },
     mainnet: {
       url: ALCHEMY_BASE_URL[CHAIN_ID.MAINNET] + process.env.ALCHEMY_API_KEY,
       deploy: ["./deploy/mainnet/"],

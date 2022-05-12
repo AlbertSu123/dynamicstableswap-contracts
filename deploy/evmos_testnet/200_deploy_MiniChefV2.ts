@@ -64,7 +64,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       await minichef.populateTransaction.add(
         0,
         (
-          await get("USD3PoolLPToken")
+          await get("KinesisKUSDMetaPoolLPToken")
         ).address, // arbUSD pool
         "0x0000000000000000000000000000000000000000",
       ),
@@ -78,16 +78,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       { from: deployer, log: true },
       "batch",
       batchCallData,
-      false,
-    )
-
-    // Transfer Ownership to the saddle multisig on arbitrum
-    await execute(
-      "MiniChefV2",
-      { from: deployer, log: true },
-      "transferOwnership",
-      MULTISIG_ADDRESSES[await getChainId()],
-      false,
       false,
     )
   }

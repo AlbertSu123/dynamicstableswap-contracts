@@ -1,34 +1,43 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types"
 import { DeployFunction } from "hardhat-deploy/types"
 import { MULTISIG_ADDRESSES } from "../../utils/accounts"
-import { getChainId } from "hardhat"
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const { deployments, getNamedAccounts } = hre
-  const { execute, get, getOrNull, log, read, save } = deployments
+  const { deployments, getNamedAccounts, getChainId } = hre
+  const { execute, get, getOrNull, log, read, save, deploy } = deployments
   const { deployer } = await getNamedAccounts()
 
   // Manually check if the pool is already deployed
-  const saddleOptUSDPool = await getOrNull("SaddleOptUSDPool")
-  if (saddleOptUSDPool) {
-    log(`reusing "SaddleOptUSDPool" at ${saddleOptUSDPool.address}`)
+  const USD3Pool = await getOrNull("USD3Pool")
+  if (USD3Pool) {
+    log(`reusing "USD3Pool" at ${USD3Pool.address}`)
   } else {
     // Constructor arguments
     const TOKEN_ADDRESSES = [
-      (await get("DAI")).address,
+      (await get("FRAX")).address,
       (await get("USDC")).address,
       (await get("USDT")).address,
     ]
     const TOKEN_DECIMALS = [18, 6, 6]
-    const LP_TOKEN_NAME = "Saddle DAI/USDC/USDT"
-    const LP_TOKEN_SYMBOL = "saddleOptUSD"
+    const LP_TOKEN_NAME = "Kinesis FRAX/USDC/USDT"
+    const LP_TOKEN_SYMBOL = "USD3Pool"
     const INITIAL_A = 200
     const SWAP_FEE = 4e6 // 4bps
     const ADMIN_FEE = 0
 
-    // Since this will be the first pool on Optimism, we initialize the target contract.
+    await deploy("USD3Pool", {
+      from: deployer,
+      log: true,
+      contract: "SwapFlashLoan",
+      libraries: {
+        SwapUtils: (await get("SwapUtils")).address,
+        AmplificationUtils: (await get("AmplificationUtils")).address,
+      },
+      skipIfAlreadyDeployed: true,
+    })
+
     await execute(
-      "SwapFlashLoan",
+      "USD3Pool",
       { from: deployer, log: true },
       "initialize",
       TOKEN_ADDRESSES,
@@ -43,23 +52,16 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       ).address,
     )
 
-    await save("SaddleOptUSDPool", {
-      abi: (await get("SwapFlashLoan")).abi,
-      address: (await get("SwapFlashLoan")).address,
-    })
+    const lpTokenAddress = (await read("USD3Pool", "swapStorage")).lpToken
+    log(`USD3Pool LP Token at ${lpTokenAddress}`)
 
-    const lpTokenAddress = (await read("SaddleOptUSDPool", "swapStorage"))
-      .lpToken
-    log(`Saddle Optimism USD Pool LP Token at ${lpTokenAddress}`)
-
-    await save("SaddleOptUSDPoolLPToken", {
+    await save("USD3PoolLPToken", {
       abi: (await get("LPToken")).abi, // LPToken ABI
       address: lpTokenAddress,
     })
 
-    // Transfer ownership to the multisig
     await execute(
-      "SaddleOptUSDPool",
+      "USD3Pool",
       { from: deployer, log: true },
       "transferOwnership",
       MULTISIG_ADDRESSES[await getChainId()],
@@ -67,5 +69,5 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   }
 }
 export default func
-func.tags = ["SaddleOptUSDPool"]
-func.dependencies = ["SwapUtils", "SwapFlashLoan", "OptUSDPoolTokens"]
+func.tags = ["USD3Pool"]
+func.dependencies = ["SwapUtils", "SwapFlashLoan", "ArbUSDPoolV2Tokens"]

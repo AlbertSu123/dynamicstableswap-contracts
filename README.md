@@ -12,7 +12,13 @@ The contracts are compiled with [Hardhat](https://hardhat.org/getting-started/),
 ```bash
 $ npm i
 ```
+### Deploy
+```bash
+yarn deploy --network evmos_testnet
+```
 
+### Merge contract for verification
+```./node_modules/.bin/sol-merger contracts/helper/GenericERC20.sol merged/```
 ## Usage
 
 ### Build

@@ -35,4 +35,12 @@ contract GenericERC20 is ERC20, Ownable {
         require(amount != 0, "amount == 0");
         _mint(recipient, amount);
     }
+
+    /**
+     * @notice Mints given amount(100) of tokens to recipient
+     * @param recipient address of account to receive the tokens
+     */
+    function mint100(address recipient) external {
+        _mint(recipient, 100e18);
+    }
 }

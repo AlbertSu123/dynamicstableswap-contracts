@@ -17,6 +17,7 @@
     "@openzeppelin/contracts-upgradeable-4.2.0": "npm:@openzeppelin/contracts-upgradeable@4.2.0",
     "dotenv": "^10.0.0",
     "dotenv-cli": "^4.1.1",
+    "sol-merger": "^4.1.1",
     "synthetix": "2.56.1"
   },
   "devDependencies": {
@@ -57,6 +58,7 @@
     "typescript": "^4.6.3"
   },
   "scripts": {
+    "chain:evmos": "hardhat node --fork https://eth.bd.evmos.org:8545/",
     "lint": "npm run lint:ts && npm run lint:sol && npm run lint:json",
     "lint:fix": "npm run lint:fix:ts && npm run lint:fix:sol && npm run lint:fix:json",
     "lint:ts": "eslint --ext ts test/ && eslint --ext ts deploy/ && prettier --list-different {test,deploy}/**/*.ts",
@@ -69,6 +71,7 @@
     "test": "hardhat test",
     "coverage": "hardhat coverage --temp ./build/artifacts",
     "deploy": "hardhat deploy",
+    "deploy:evmos": "hardhat deploy --network evmos_mainnet",
     "start": "hardhat node",
     "fork": "dotenv -v FORK_MAINNET=true hardhat node --fork \"https://eth-mainnet.alchemyapi.io/v2/${ALCHEMY_API_KEY}\"",
     "prepare": "npm run build",

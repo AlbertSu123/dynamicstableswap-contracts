@@ -1,5 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types"
 import { DeployFunction } from "hardhat-deploy/types"
+import { MULTISIG_ADDRESSES } from "../../utils/accounts"
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts, getChainId } = hre
@@ -7,20 +8,21 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployer } = await getNamedAccounts()
 
   // Manually check if the pool is already deployed
-  const KinesisNomad3pool = await getOrNull("KinesisNomad3pool")
-  if (KinesisNomad3pool) {
-    log(`reusing "Evmos3poolTokens" at ${KinesisNomad3pool.address}`)
+  const saddleArbUSDPool = await getOrNull("SaddleArbUSDPool")
+  if (saddleArbUSDPool) {
+    log(`reusing "SaddleArbUSDPool" at ${saddleArbUSDPool.address}`)
   } else {
     // Constructor arguments
     const TOKEN_ADDRESSES = [
-      (await get("FRAX")).address,
+      (await get("nUSD")).address,
+      (await get("MIM")).address,
       (await get("USDC")).address,
       (await get("USDT")).address,
     ]
-    const TOKEN_DECIMALS = [18, 6, 6]
-    const LP_TOKEN_NAME = "Nomad 3pool"
-    const LP_TOKEN_SYMBOL = "KinesisNomadUSD"
-    const INITIAL_A = 400
+    const TOKEN_DECIMALS = [18, 18, 6, 6]
+    const LP_TOKEN_NAME = "Saddle nUSD/MIM/USDC/USDT"
+    const LP_TOKEN_SYMBOL = "saddleArbUSD"
+    const INITIAL_A = 200
     const SWAP_FEE = 4e6 // 4bps
     const ADMIN_FEE = 0
 
@@ -40,21 +42,28 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       ).address,
     )
 
-    await save("KinesisNomad3pool", {
+    await save("SaddleArbUSDPool", {
       abi: (await get("SwapFlashLoan")).abi,
       address: (await get("SwapFlashLoan")).address,
     })
 
-    const lpTokenAddress = (await read("KinesisNomad3pool", "swapStorage"))
+    const lpTokenAddress = (await read("SaddleArbUSDPool", "swapStorage"))
       .lpToken
-    log(`Kinesis Evmos USD Pool LP Token at ${lpTokenAddress}`)
+    log(`Saddle Arbitrum USD Pool LP Token at ${lpTokenAddress}`)
 
-    await save("KinesisNomad3poolLPToken", {
+    await save("SaddleArbUSDPoolLPToken", {
       abi: (await get("LPToken")).abi, // LPToken ABI
       address: lpTokenAddress,
     })
+
+    await execute(
+      "SaddleArbUSDPool",
+      { from: deployer, log: true },
+      "transferOwnership",
+      MULTISIG_ADDRESSES[await getChainId()],
+    )
   }
 }
 export default func
-func.tags = ["KinesisNomad3pool"]
-func.dependencies = ["SwapUtils", "SwapFlashLoan", "Evmos3poolTokens"]
+func.tags = ["SaddleArbUSDPool"]
+func.dependencies = ["SwapUtils", "SwapFlashLoan", "USDPoolTokens"]

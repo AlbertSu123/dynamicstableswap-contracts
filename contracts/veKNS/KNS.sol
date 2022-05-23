@@ -50,9 +50,7 @@ contract KNS is AccessControl, ERC20 {
     /// @dev A modifier which checks that the caller has transfer privileges.
     modifier onlyTransferer(address from) {
         require(
-            transfersAllowed ||
-                from == address(0) ||
-                hasRole(TRANSFER_ROLE, msg.sender),
+            transfersAllowed || hasRole(TRANSFER_ROLE, msg.sender),
             "KNS: no transfer privileges"
         );
         _;

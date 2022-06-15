@@ -374,6 +374,7 @@ contract Swap is OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
         deadlineCheck(deadline)
         returns (uint256)
     {
+        updateSwapFee(minDy);
         return swapStorage.swap(tokenIndexFrom, tokenIndexTo, dx, minDy);
     }
 
@@ -481,6 +482,33 @@ contract Swap is OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
         returns (uint256)
     {
         return swapStorage.removeLiquidityImbalance(amounts, maxBurnAmount);
+    }
+
+    uint256 public averageVolume;
+    /**
+     * @param volume The total volume of trades that have happened
+     * @param timestamp The starting timestamp for this period
+     */
+    struct TradeVolume {
+        uint256 volume;
+        uint256 timestamp;
+    }
+    
+    /** Each element represents a block of recent trades 60-50 mins, 50-40 mins, ... */
+    TradeVolume[] public recentVolume;
+
+    function updateSwapFee(uint256 volume) internal {
+        // if we are still in the last element of recentVolume's timestamp(recentVolume.timestamp + 10 min >= block.timestamp)
+        // add volume to the last element of recentVolume
+        // else
+        // remove the first element in recentVolume
+        // append a new element to recentVolume, set timestamp to block.timestamp, volume to volume
+
+        // Calculate hourlyVolume by summing volume inside recentVolume
+        // Average volume += (average volume + current volume) / time pool has been active
+
+        // call swapStorage.setSwapFee(newSwapFee) with fees =  A * volume / average volume + B
+        
     }
 
     /*** ADMIN FUNCTIONS ***/

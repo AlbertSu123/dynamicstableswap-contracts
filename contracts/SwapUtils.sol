@@ -1053,7 +1053,6 @@ library SwapUtils {
      * @param newSwapFee new swap fee to be applied on future transactions
      */
     function setSwapFee(Swap storage self, uint256 newSwapFee) external {
-        require(newSwapFee <= MAX_SWAP_FEE, "Fee is too high");
         self.swapFee = newSwapFee;
 
         emit NewSwapFee(newSwapFee);

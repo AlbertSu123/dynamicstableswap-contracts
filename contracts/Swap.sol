@@ -179,9 +179,10 @@ contract Swap is OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
         // swapStorage.futureATime = 0;
         swapStorage.swapFee = _fee;
         swapStorage.adminFee = _adminFee;
-        for (uint8 i = recentVolumePointer; i < 6; ++i) {
-            recentVolume[i] =push({volume: 0, timestamp: block.timestamp});
-            recentVolumeSize++;
+        for (uint8 i = 0; i < 6; ++i) {
+            recentVolume.push(
+                TradeVolume({volume: 0, timestamp: block.timestamp})
+            );
         }
         baseFee = _fee;
         creationTimestamp = block.timestamp;
@@ -500,9 +501,7 @@ contract Swap is OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
     }
     // Average Volume for the pool's existance
     uint256 public averageVolume;
-    mapping(uint256 => TradeVolume) public recentVolume;
-    // Size of the recentVolume mapping
-    uint256 public recentVolumeSize;
+    TradeVolume[] public recentVolume;
     // Pointer to the first element of the recentVolume array
     uint256 public recentVolumePointer;
     // Base Fee used for calculating dynamic fees
@@ -515,11 +514,11 @@ contract Swap is OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
     function updateSwapFee(uint256 tradeVolume) internal {
         // if we are still in the last element of recentVolume's timestamp(recentVolume.timestamp + 10 min >= block.timestamp)
         if (
-            recentVolume[recentVolumeSize - 1].timestamp + 10 minutes >=
+            recentVolume[recentVolume.length - 1].timestamp + 10 minutes >=
             block.timestamp
         ) {
             // add volume to the last element of recentVolume
-            recentVolume[recentVolumeSize - 1].volume += tradeVolume;
+            recentVolume[recentVolume.length - 1].volume += tradeVolume;
         } else {
             // Average volume += (average volume - volume removed) * (10 mins / time pool has been active)
             averageVolume +=
@@ -527,17 +526,15 @@ contract Swap is OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
                 (10 minutes / (block.timestamp - creationTimestamp));
             // remove the first element in recentVolume
             recentVolumePointer++;
-            recentVolumeSize++;
             // append a new element to recentVolume, set timestamp to block.timestamp, volume to volume
-            recentVolume[recentVolumeSize - 1] = TradeVolume({
-                volume: tradeVolume,
-                timestamp: block.timestamp
-            });
+            recentVolume.push(
+                TradeVolume({volume: tradeVolume, timestamp: block.timestamp})
+            );
         }
 
         // Calculate hourlyVolume by summing volume inside recentVolume
         uint256 hourlyVolume = 0;
-        for (uint256 i = recentVolumePointer; i < recentVolumeSize; ++i) {
+        for (uint256 i = recentVolumePointer; i < recentVolume.length; ++i) {
             hourlyVolume += recentVolume[i].volume;
         }
 

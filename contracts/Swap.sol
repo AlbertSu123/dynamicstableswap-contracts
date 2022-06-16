@@ -179,8 +179,9 @@ contract Swap is OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
         // swapStorage.futureATime = 0;
         swapStorage.swapFee = _fee;
         swapStorage.adminFee = _adminFee;
-        for (uint8 i = 0; i < 6; ++i) {
-            recentVolume.push({volume: 0, timestamp: block.timestamp});
+        for (uint8 i = recentVolumePointer; i < 6; ++i) {
+            recentVolume[i] =push({volume: 0, timestamp: block.timestamp});
+            recentVolumeSize++;
         }
         baseFee = _fee;
         creationTimestamp = block.timestamp;
@@ -499,37 +500,44 @@ contract Swap is OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
     }
     // Average Volume for the pool's existance
     uint256 public averageVolume;
-    /** Each element represents a block of recent trades 60-50 mins, 50-40 mins, ... */
-    TradeVolume[] public recentVolume;
+    mapping(uint256 => TradeVolume) public recentVolume;
+    // Size of the recentVolume mapping
+    uint256 public recentVolumeSize;
+    // Pointer to the first element of the recentVolume array
+    uint256 public recentVolumePointer;
     // Base Fee used for calculating dynamic fees
     uint256 public baseFee;
     // A constant: A * volume / average volume + B
-    uint256 public feeFactor;
+    uint256 public feeFactor = 1;
+    // When the pool was created
     uint256 public creationTimestamp;
 
     function updateSwapFee(uint256 tradeVolume) internal {
         // if we are still in the last element of recentVolume's timestamp(recentVolume.timestamp + 10 min >= block.timestamp)
-        if (recentVolume.timestamp + 10 minutes >= block.timestamp) {
+        if (
+            recentVolume[recentVolumeSize - 1].timestamp + 10 minutes >=
+            block.timestamp
+        ) {
             // add volume to the last element of recentVolume
-            recentVolume.volume += tradeVolume;
+            recentVolume[recentVolumeSize - 1].volume += tradeVolume;
         } else {
-            // Average volume += (average volume - current volume) / time pool has been active
+            // Average volume += (average volume - volume removed) * (10 mins / time pool has been active)
             averageVolume +=
-                (averageVolume - recentVolume[0].volume) /
-                (block.timestamp - creationTimestamp);
-            // remove the first element in recentVolume - TODO: Check syntax
-            delete recentVolume[0];
+                (averageVolume - recentVolume[recentVolumePointer].volume) *
+                (10 minutes / (block.timestamp - creationTimestamp));
+            // remove the first element in recentVolume
+            recentVolumePointer++;
+            recentVolumeSize++;
             // append a new element to recentVolume, set timestamp to block.timestamp, volume to volume
-            TradeVolume tradeVolume = new TradeVolume({
+            recentVolume[recentVolumeSize - 1] = TradeVolume({
                 volume: tradeVolume,
                 timestamp: block.timestamp
             });
-            recentVolume.push(tradeVolume);
         }
 
         // Calculate hourlyVolume by summing volume inside recentVolume
         uint256 hourlyVolume = 0;
-        for (uint256 i = 0; i < recentVolume.length; ++i) {
+        for (uint256 i = recentVolumePointer; i < recentVolumeSize; ++i) {
             hourlyVolume += recentVolume[i].volume;
         }
 

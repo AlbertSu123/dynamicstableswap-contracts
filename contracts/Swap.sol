@@ -514,18 +514,25 @@ contract Swap is OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
     function updateSwapFee(uint256 tradeVolume) internal {
         // if we are still in the last element of recentVolume's timestamp(recentVolume.timestamp + 10 min >= block.timestamp)
         if (
-            recentVolume[recentVolume.length - 1].timestamp + 10 minutes >=
-            block.timestamp
+            recentVolume[recentVolume.length.sub(1)].timestamp.add(
+                10 minutes
+            ) >= block.timestamp
         ) {
             // add volume to the last element of recentVolume
-            recentVolume[recentVolume.length - 1].volume += tradeVolume;
+            recentVolume[recentVolume.length.sub(1)].volume = recentVolume[
+                recentVolume.length.sub(1)
+            ].volume.add(tradeVolume);
         } else {
             // Average volume += (average volume - volume removed) * (10 mins / time pool has been active)
-            averageVolume +=
-                (averageVolume - recentVolume[recentVolumePointer].volume) *
-                (10 minutes / (block.timestamp - creationTimestamp));
+            averageVolume = averageVolume
+                .add(
+                    averageVolume.sub(recentVolume[recentVolumePointer].volume)
+                )
+                .mul(
+                    ((10 minutes).div((block.timestamp.sub(creationTimestamp))))
+                );
             // remove the first element in recentVolume
-            recentVolumePointer++;
+            recentVolumePointer = recentVolumePointer.add(1);
             // append a new element to recentVolume, set timestamp to block.timestamp, volume to volume
             recentVolume.push(
                 TradeVolume({volume: tradeVolume, timestamp: block.timestamp})
@@ -534,14 +541,16 @@ contract Swap is OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
 
         // Calculate hourlyVolume by summing volume inside recentVolume
         uint256 hourlyVolume = 0;
-        for (uint256 i = recentVolumePointer; i < recentVolume.length; ++i) {
+        uint256 rvLength = recentVolume.length;
+        uint256 rvPointer = recentVolumePointer;
+        for (uint256 i = rvPointer; i < rvLength; ++i) {
             hourlyVolume += recentVolume[i].volume;
         }
 
         // call swapStorage.setSwapFee(newSwapFee) with fees =  A * volume / average volume + B
-        uint256 newSwapFee = (feeFactor * hourlyVolume) /
-            averageVolume +
-            baseFee;
+        uint256 newSwapFee = (feeFactor.mul(hourlyVolume))
+            .div(averageVolume)
+            .add(baseFee);
         swapStorage.setSwapFee(newSwapFee);
     }
 

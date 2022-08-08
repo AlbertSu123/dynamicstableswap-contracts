@@ -179,6 +179,13 @@ contract Swap is OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
         // swapStorage.futureATime = 0;
         swapStorage.swapFee = _fee;
         swapStorage.adminFee = _adminFee;
+        for (uint8 i = 0; i < 6; ++i) {
+            recentVolume.push(
+                TradeVolume({volume: 0, timestamp: block.timestamp})
+            );
+        }
+        baseFee = _fee;
+        creationTimestamp = block.timestamp;
     }
 
     /*** MODIFIERS ***/
@@ -374,6 +381,7 @@ contract Swap is OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
         deadlineCheck(deadline)
         returns (uint256)
     {
+        updateSwapFee(minDy);
         return swapStorage.swap(tokenIndexFrom, tokenIndexTo, dx, minDy);
     }
 
@@ -481,6 +489,60 @@ contract Swap is OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
         returns (uint256)
     {
         return swapStorage.removeLiquidityImbalance(amounts, maxBurnAmount);
+    }
+
+    /**
+     * @param volume The total volume of trades that have happened
+     * @param timestamp The starting timestamp for this period
+     */
+    struct TradeVolume {
+        uint256 volume;
+        uint256 timestamp;
+    }
+    // Average Volume for the pool's existance
+    uint256 public averageVolume = 1;
+    TradeVolume[] public recentVolume;
+    // Pointer to the first element of the recentVolume array
+    uint256 public recentVolumePointer;
+    // Base Fee used for calculating dynamic fees
+    uint256 public baseFee;
+    // A constant: A * volume / average volume + B
+    uint256 public feeFactor = 1;
+    // When the pool was created
+    uint256 public creationTimestamp;
+
+    function updateSwapFee(uint256 tradeVolume) internal {
+        // if we are still in the last element of recentVolume's timestamp(recentVolume.timestamp + 10 min >= block.timestamp)
+        if (
+            recentVolume[recentVolume.length - 1].timestamp + 10 minutes >=
+            block.timestamp
+        ) {
+            // add volume to the last element of recentVolume
+            recentVolume[recentVolume.length - 1].volume += tradeVolume;
+        } else {
+            // Average volume += (average volume - volume removed) * (10 mins / time pool has been active)
+            averageVolume +=
+                (averageVolume - recentVolume[recentVolumePointer].volume) *
+                (10 minutes / (block.timestamp - creationTimestamp));
+            // remove the first element in recentVolume
+            recentVolumePointer++;
+            // append a new element to recentVolume, set timestamp to block.timestamp, volume to volume
+            recentVolume.push(
+                TradeVolume({volume: tradeVolume, timestamp: block.timestamp})
+            );
+        }
+
+        // Calculate hourlyVolume by summing volume inside recentVolume
+        uint256 hourlyVolume = 0;
+        for (uint256 i = recentVolumePointer; i < recentVolume.length; ++i) {
+            hourlyVolume += recentVolume[i].volume;
+        }
+
+        // call swapStorage.setSwapFee(newSwapFee) with fees =  A * volume / average volume + B
+        uint256 newSwapFee = (feeFactor * hourlyVolume) /
+            averageVolume +
+            baseFee;
+        swapStorage.setSwapFee(newSwapFee);
     }
 
     /*** ADMIN FUNCTIONS ***/

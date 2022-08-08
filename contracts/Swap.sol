@@ -500,7 +500,7 @@ contract Swap is OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
         uint256 timestamp;
     }
     // Average Volume for the pool's existance
-    uint256 public averageVolume;
+    uint256 public averageVolume = 1;
     TradeVolume[] public recentVolume;
     // Pointer to the first element of the recentVolume array
     uint256 public recentVolumePointer;

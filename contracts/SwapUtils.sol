@@ -1055,7 +1055,7 @@ library SwapUtils {
     function setSwapFee(Swap storage self, uint256 newSwapFee) external {
         if (newSwapFee > MAX_SWAP_FEE) {
             self.swapFee = MAX_SWAP_FEE;
-        } else if (newSwapFee = MAX_SWAP_FEE) {
+        } else if (newSwapFee == MAX_SWAP_FEE) {
             return;
         } else {
             self.swapFee = newSwapFee;

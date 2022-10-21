@@ -6,7 +6,7 @@ import { BIG_NUMBER_1E18 } from "../../test/testUtils"
 import { MULTISIG_ADDRESSES } from "../../utils/accounts"
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const { deployments, getNamedAccounts, ethers } = hre
+  const { deployments, getNamedAccounts, getChainId, ethers } = hre
   const { deploy, execute, get, getOrNull, save, read } = deployments
   const { deployer } = await getNamedAccounts()
 
@@ -44,7 +44,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       )
     }
     const PID = 2
-    const lpToken = (await get("USD3PoolLPToken")).address
+    const lpToken = (await get("KinesisKUSDMetaPoolLPToken")).address
     const rewardToken = (await get("celer")).address // celer token
     const rewardAdmin = deployer // celer team's multisig wallet
     const TOTAL_LM_REWARDS = BIG_NUMBER_1E18.mul(
@@ -128,6 +128,16 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     )
 
     expect(await read("MiniChefV2", "lpToken", PID)).to.eq(lpToken)
+
+    // Transfer Ownership to the saddle multisig on arbitrum
+    await execute(
+      "MiniChefV2",
+      { from: deployer, log: true },
+      "transferOwnership",
+      MULTISIG_ADDRESSES[await getChainId()],
+      false,
+      false,
+    )
   }
 }
 export default func

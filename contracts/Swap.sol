@@ -529,7 +529,7 @@ contract Swap is OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
                     averageVolume.sub(recentVolume[recentVolumePointer].volume)
                 )
                 .mul(
-                    ((10 minutes).div((block.timestamp.sub(creationTimestamp))))
+                    (10 minutes / (block.timestamp.sub(creationTimestamp)))
                 );
             // remove the first element in recentVolume
             recentVolumePointer = recentVolumePointer.add(1);

@@ -15,7 +15,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     from: deployer,
     log: true,
     args: [(await get("MiniChefV2")).address],
-    skipIfAlreadyDeployed: true,
   })
 
   await save("SimpleRewarder_celer1", result)

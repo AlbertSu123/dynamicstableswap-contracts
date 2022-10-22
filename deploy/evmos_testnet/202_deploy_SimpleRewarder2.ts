@@ -15,61 +15,60 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     log: true,
     contract: "SimpleRewarder",
     args: [(await get("MiniChefV2")).address],
+    skipIfAlreadyDeployed: false,
   })
 
-    await save("SimpleRewarder_celer2", result)
+  await save("SimpleRewarder_celer2", result)
 
-    const PID = 3
-    const lpToken = (await get("USD3Pool2LPToken")).address
-    const rewardToken = (await get("celer")).address // celer token
-    const rewardAdmin = deployer // celer team's multisig wallet
-    const TOTAL_LM_REWARDS = BIG_NUMBER_1E18.mul(
-      BigNumber.from(30_000),
-    )
-    const rewardPerSecond = TOTAL_LM_REWARDS.div(3 * 4 * 7 * 24 * 3600) // celer reward per second
+  const PID = 3
+  const lpToken = (await get("USDTPoolLPToken")).address
+  const rewardToken = (await get("celer")).address // celer token
+  const rewardAdmin = deployer // celer team's multisig wallet
+  const TOTAL_LM_REWARDS = BIG_NUMBER_1E18.mul(BigNumber.from(30_000))
+  const rewardPerSecond = TOTAL_LM_REWARDS.div(3 * 4 * 7 * 24 * 3600) // celer reward per second
 
-    // (IERC20 rewardToken, address owner, uint256 rewardPerSecond, IERC20 masterLpToken, uint256 pid)
-    const data = ethers.utils.defaultAbiCoder.encode(
-      ["address", "address", "uint256", "address", "uint256"],
-      [
-        rewardToken, // celer token
-        rewardAdmin, // celer team's OpEx wallet
-        rewardPerSecond, // 250k celer weekly
-        lpToken, // master LP token
-        PID, // pid
-      ],
-    )
+  // (IERC20 rewardToken, address owner, uint256 rewardPerSecond, IERC20 masterLpToken, uint256 pid)
+  const data = ethers.utils.defaultAbiCoder.encode(
+    ["address", "address", "uint256", "address", "uint256"],
+    [
+      rewardToken, // celer token
+      rewardAdmin, // celer team's OpEx wallet
+      rewardPerSecond, // 250k celer weekly
+      lpToken, // master LP token
+      PID, // pid
+    ],
+  )
 
-    await execute(
-      "MiniChefV2",
-      { from: deployer, log: true },
-      "add",
-      1,
-      lpToken,
-      (
-        await get("SimpleRewarder_celer2")
-      ).address,
-    )
+  await execute(
+    "MiniChefV2",
+    { from: deployer, log: true },
+    "add",
+    1,
+    lpToken,
+    (
+      await get("SimpleRewarder_celer2")
+    ).address,
+  )
 
-    await execute(
-      "SimpleRewarder_celer2",
-      { from: deployer, log: true },
-      "init",
-      data,
-    )
+  await execute(
+    "SimpleRewarder_celer2",
+    { from: deployer, log: true },
+    "init",
+    data,
+  )
 
-    await execute(
-      "celer",
-      { from: deployer, log: true },
-      "transfer",
-      (
-        await get("SimpleRewarder_celer2")
-      ).address,
-      TOTAL_LM_REWARDS,
-    )
+  await execute(
+    "celer",
+    { from: deployer, log: true },
+    "transfer",
+    (
+      await get("SimpleRewarder_celer2")
+    ).address,
+    TOTAL_LM_REWARDS,
+  )
 
-    expect(await read("MiniChefV2", "lpToken", PID)).to.eq(lpToken)
-  }
+  expect(await read("MiniChefV2", "lpToken", PID)).to.eq(lpToken)
+}
 
 export default func
 func.tags = ["SimpleRewarder"]

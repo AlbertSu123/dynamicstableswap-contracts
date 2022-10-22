@@ -21,7 +21,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   // await save("SimpleRewarder_celer1", result)
 
   const PID = 2
-  const lpToken = (await get("USD3Pool1LPToken")).address
+  const lpToken = (await get("USDCPoolLPToken")).address
   const rewardToken = (await get("celer")).address // celer token
   const rewardAdmin = deployer // celer team's multisig wallet
   const TOTAL_LM_REWARDS = BIG_NUMBER_1E18.mul(BigNumber.from(50_000))

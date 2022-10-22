@@ -8,9 +8,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployer } = await getNamedAccounts()
 
   // Manually check if the pool is already deployed
-  const USD3Pool1 = await getOrNull("USD3Pool1")
-  if (USD3Pool1) {
-    log(`reusing "USD3Pool1" at ${USD3Pool1.address}`)
+  const USDCPool = await getOrNull("USDCPool")
+  if (USDCPool) {
+    log(`reusing "USDCPool" at ${USDCPool.address}`)
   } else {
     // Constructor arguments
     const TOKEN_ADDRESSES = [
@@ -20,12 +20,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     ]
     const TOKEN_DECIMALS = [18, 6, 6]
     const LP_TOKEN_NAME = "Kinesis FRAX/USDC/USDT"
-    const LP_TOKEN_SYMBOL = "USD3Pool1"
+    const LP_TOKEN_SYMBOL = "USDCPool"
     const INITIAL_A = 200
     const SWAP_FEE = 4e6 // 4bps
     const ADMIN_FEE = 0
 
-    await deploy("USD3Pool1", {
+    await deploy("USDCPool", {
       from: deployer,
       log: true,
       contract: "SwapFlashLoan",
@@ -37,7 +37,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     })
 
     await execute(
-      "USD3Pool1",
+      "USDCPool",
       { from: deployer, log: true },
       "initialize",
       TOKEN_ADDRESSES,
@@ -52,16 +52,15 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       ).address,
     )
 
-    const lpTokenAddress = (await read("USD3Pool1", "swapStorage")).lpToken
-    log(`USD3Pool1 LP Token at ${lpTokenAddress}`)
+    const lpTokenAddress = (await read("USDCPool", "swapStorage")).lpToken
+    log(`USDCPool LP Token at ${lpTokenAddress}`)
 
-    await save("USD3Pool1LPToken", {
+    await save("USDCPoolLPToken", {
       abi: (await get("LPToken")).abi, // LPToken ABI
       address: lpTokenAddress,
     })
-
   }
 }
 export default func
-func.tags = ["USD3Pool1"]
+func.tags = ["USDCPool"]
 func.dependencies = ["SwapUtils", "SwapFlashLoan", "ArbUSDPoolV2Tokens"]

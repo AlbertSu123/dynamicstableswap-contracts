@@ -35,7 +35,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       await minichef.populateTransaction.add(
         0,
         (
-          await get("USD3Pool1LPToken")
+          await get("USDCPoolLPToken")
         ).address, // arbUSD pool
         "0x0000000000000000000000000000000000000000",
       ),

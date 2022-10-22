@@ -15,12 +15,13 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     log: true,
     contract: "SimpleRewarder",
     args: [(await get("MiniChefV2")).address],
+    skipIfAlreadyDeployed: false,
   })
 
   await save("SimpleRewarder_celer3", result)
 
   const PID = 4
-  const lpToken = (await get("USD3Pool3LPToken")).address
+  const lpToken = (await get("DAIPoolLPToken")).address
   const rewardToken = (await get("celer")).address // celer token
   const rewardAdmin = deployer // celer team's multisig wallet
   const TOTAL_LM_REWARDS = BIG_NUMBER_1E18.mul(BigNumber.from(19_000))

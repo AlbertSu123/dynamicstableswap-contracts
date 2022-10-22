@@ -11,13 +11,14 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy, execute, get, getOrNull, save, read } = deployments
   const { deployer } = await getNamedAccounts()
 
-  const result = await deploy("SimpleRewarder", {
+  const result = await deploy("SimpleRewarder_celer1", {
     from: deployer,
     log: true,
+    contract: "SimpleRewarder",
     args: [(await get("MiniChefV2")).address],
   })
 
-  await save("SimpleRewarder_celer1", result)
+  // await save("SimpleRewarder_celer1", result)
 
   const PID = 2
   const lpToken = (await get("USD3Pool1LPToken")).address

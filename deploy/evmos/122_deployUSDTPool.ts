@@ -14,11 +14,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   } else {
     // Constructor arguments
     const TOKEN_ADDRESSES = [
+      "0xe01C6D4987Fc8dCE22988DADa92d56dA701d0Fe0", //axlUSDT
       "0xb72A7567847abA28A2819B855D7fE679D4f59846", //ceUSDT
       "0xecEEEfCEE421D8062EF8d6b4D814efe4dc898265", //gUSDT
     ]
-    const TOKEN_DECIMALS = [6, 6]
-    const LP_TOKEN_NAME = "Kinesis ceUSDT/gUSDT"
+    const TOKEN_DECIMALS = [6, 6, 6]
+    const LP_TOKEN_NAME = "Kinesis axlUSDT/ceUSDT/gUSDT"
     const LP_TOKEN_SYMBOL = "USDTPool"
     const INITIAL_A = 200
     const SWAP_FEE = 4e6 // 4bps

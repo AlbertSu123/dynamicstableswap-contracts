@@ -14,11 +14,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   } else {
     // Constructor arguments
     const TOKEN_ADDRESSES = [
+      "0x4A2a90D444DbB7163B5861b772f882BbA394Ca67", //axlDAI
       "0x940dAAbA3F713abFabD79CdD991466fe698CBe54", //ceDAI
       "0xd567B3d7B8FE3C79a1AD8dA978812cfC4Fa05e75", //gDAI
     ]
-    const TOKEN_DECIMALS = [18, 18]
-    const LP_TOKEN_NAME = "Kinesis ceDAI/gDAI"
+    const TOKEN_DECIMALS = [18, 18, 18]
+    const LP_TOKEN_NAME = "Kinesis axlDAI/ceDAI/gDAI"
     const LP_TOKEN_SYMBOL = "DAIPool"
     const INITIAL_A = 200
     const SWAP_FEE = 4e6 // 4bps

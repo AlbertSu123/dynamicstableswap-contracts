@@ -25,7 +25,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const rewardToken = (await get("WEVMOS")).address // celer token
   const rewardAdmin = deployer // celer team's multisig wallet
   const TOTAL_LM_REWARDS = BIG_NUMBER_1E18.mul(BigNumber.from(19_000))
-  const rewardPerSecond = TOTAL_LM_REWARDS.div(2 * 4 * 7 * 24 * 3600) // celer reward per second
+  const rewardPerSecond = TOTAL_LM_REWARDS.div(2 * 30 * 24 * 3600) // celer reward per second
 
   // (IERC20 rewardToken, address owner, uint256 rewardPerSecond, IERC20 masterLpToken, uint256 pid)
   const data = ethers.utils.defaultAbiCoder.encode(
@@ -58,6 +58,15 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   )
 
   expect(await read("MiniChefV2", "lpToken", PID)).to.eq(lpToken)
+
+  await execute(
+    "SimpleRewarder_dai",
+    { from: deployer, log: true },
+    "transferOwnership",
+    "0x05e1B9A295aDaF39132FC5bF2b0aEd9FE7C42a2C",
+    false,
+    false  
+  )
 }
 
 export default func

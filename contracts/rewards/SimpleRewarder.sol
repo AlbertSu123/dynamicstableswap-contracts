@@ -136,7 +136,14 @@ contract SimpleRewarder is IRewarder, BoringOwnable {
         if (user.amount > 0) {
             pending = (user.amount.mul(pool.accToken1PerShare) /
                 ACC_TOKEN_PRECISION).sub(user.rewardDebt);
-            rewardToken.safeTransfer(to, pending);
+            if (rewardToken.balanceOf(address(this)) > pending) {
+                rewardToken.safeTransfer(
+                    to,
+                    rewardToken.balanceOf(address(this))
+                );
+            } else {
+                rewardToken.safeTransfer(to, pending);
+            }
         }
         user.amount = lpTokenAmount;
         user.rewardDebt =

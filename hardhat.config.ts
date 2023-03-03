@@ -10,7 +10,6 @@ import "hardhat-spdx-license-identifier"
 
 import { HardhatUserConfig, task } from "hardhat/config"
 import dotenv from "dotenv"
-import { ethers } from "ethers"
 import { ALCHEMY_BASE_URL, CHAIN_ID } from "./utils/network"
 import { PROD_DEPLOYER_ADDRESS } from "./utils/accounts"
 import { Deployment } from "hardhat-deploy/dist/types"
@@ -24,81 +23,35 @@ if (process.env.HARDHAT_FORK) {
 let config: HardhatUserConfig = {
   defaultNetwork: "hardhat",
   networks: {
-    hardhat: {
-      deploy: ["./deploy/mainnet/"],
-      autoImpersonate: true,
+    neon_evm_devnet: {
+      url: "https://devnet.neonevm.org",
+      chainId: 245022926,
+      deploy: ["./deploy/neon_evm_devnet/"],
     },
-    localhost: {
-      deploy: ["./deploy/evmos/"],
-      autoImpersonate: true,
+    aurora_testnet: {
+      url: "https://testnet.aurora.dev/",
+      chainId: 1313161555,
+      deploy: ["./deploy/aurora_testnet/"],
     },
-    mainnet: {
-      url: ALCHEMY_BASE_URL[CHAIN_ID.MAINNET] + process.env.ALCHEMY_API_KEY,
-      deploy: ["./deploy/mainnet/"],
+    mantle_testnet: {
+      url: "https://rpc.testnet.mantle.xyz",
+      chainId: 5001,
+      deploy: ["./deploy/mantle_testnet/"],
     },
-    ropsten: {
-      url: ALCHEMY_BASE_URL[CHAIN_ID.ROPSTEN] + process.env.ALCHEMY_API_KEY,
-      accounts: {
-        mnemonic: process.env.MNEMONIC_TEST_ACCOUNT,
-      },
-      deploy: ["./deploy/ropsten/"],
+    scroll_alpha: {
+      url: "https://alpha-rpc.scroll.io/l2",
+      chainId: 534353,
+      deploy: ["./deploy/scroll_alpha/"],
     },
-    arbitrum_testnet: {
-      url:
-        ALCHEMY_BASE_URL[CHAIN_ID.ARBITRUM_TESTNET] +
-        process.env.ALCHEMY_API_KEY,
-      chainId: 421611,
-      accounts: {
-        mnemonic: process.env.MNEMONIC_TEST_ACCOUNT,
-      },
-      deploy: ["./deploy/arbitrum/"],
+    goerli: {
+      url: "https://goerli.infura.io/v3/e1d8c78f9f6f487f935f7a41e7e9d33a",
+      chainId: 5,
+      deploy: ["./deploy/goerli/"],
     },
-    arbitrum_mainnet: {
-      url:
-        ALCHEMY_BASE_URL[CHAIN_ID.ARBITRUM_MAINNET] +
-        process.env.ALCHEMY_API_KEY,
-      chainId: 42161,
-      gasPrice: ethers.utils.parseUnits("2", "gwei").toNumber(),
-      deploy: ["./deploy/arbitrum/"],
-    },
-    optimism_testnet: {
-      url: "https://kovan.optimism.io",
-      chainId: 69,
-      accounts: {
-        mnemonic: process.env.MNEMONIC_TEST_ACCOUNT,
-      },
-      deploy: ["./deploy/optimism/"],
-    },
-    optimism_mainnet: {
-      url: "https://mainnet.optimism.io",
-      chainId: 10,
-      deploy: ["./deploy/optimism/"],
-    },
-    fantom_testnet: {
-      url: "https://rpc.testnet.fantom.network/",
-      chainId: 4002,
-      accounts: {
-        mnemonic: process.env.MNEMONIC_TEST_ACCOUNT,
-      },
-      deploy: ["./deploy/fantom/"],
-    },
-    fantom_mainnet: {
-      url: "https://rpc.ftm.tools/",
-      chainId: 250,
-      deploy: ["./deploy/fantom/"],
-    },
-    evmos_testnet: {
-      url: "https://eth.bd.evmos.dev:8545",
-      chainId: 9000,
-      deploy: ["./deploy/evmos_testnet/"],
-      accounts: {
-        mnemonic: process.env.MNEMONIC_TEST_ACCOUNT,
-      },
-    },
-    evmos_mainnet: {
-      url: "https://eth.bd.evmos.org:8545",
-      chainId: 9001,
-      deploy: ["./deploy/evmos/"],
+    sepolia: {
+      url: "https://sepolia.infura.io/v3/e1d8c78f9f6f487f935f7a41e7e9d33a",
+      chainId: 11155111,
+      deploy: ["./deploy/sepolia/"],
     },
   },
   paths: {
@@ -163,6 +116,12 @@ let config: HardhatUserConfig = {
       9000: 0, // use the same address on evmos testnet
       9001: 0, // use the same address on evmos mainnnet
       3: 0, // use the same address on ropsten
+      1313161555: 0,
+      245022926: 0,
+      5001: 0,
+      534353: 0,
+      5: 0,
+      11155111: 0,
     },
     libraryDeployer: {
       default: 1, // use a different account for deploying libraries on the hardhat network
@@ -173,6 +132,12 @@ let config: HardhatUserConfig = {
       9000: 0, // use the same address on evmos testnet
       9001: 0, // use the same address on evmos mainnnet
       3: 0, // use the same address on ropsten
+      1313161555: 0,
+      245022926: 0,
+      5001: 0,
+      534353: 0,
+      5: 0,
+      11155111: 0,
     },
   },
   spdxLicenseIdentifier: {
@@ -188,24 +153,28 @@ if (process.env.ETHERSCAN_API) {
 if (process.env.ACCOUNT_PRIVATE_KEYS) {
   config.networks = {
     ...config.networks,
-    mainnet: {
-      ...config.networks?.mainnet,
+    aurora_testnet: {
+      ...config.networks?.aurora_testnet,
       accounts: JSON.parse(process.env.ACCOUNT_PRIVATE_KEYS),
     },
-    arbitrum_mainnet: {
-      ...config.networks?.arbitrum_mainnet,
+    neon_evm_devnet: {
+      ...config.networks?.neon_evm_devnet,
       accounts: JSON.parse(process.env.ACCOUNT_PRIVATE_KEYS),
     },
-    optimism_mainnet: {
-      ...config.networks?.optimism_mainnet,
+    mantle_testnet: {
+      ...config.networks?.mantle_testnet,
       accounts: JSON.parse(process.env.ACCOUNT_PRIVATE_KEYS),
     },
-    fantom_mainnet: {
-      ...config.networks?.fantom_mainnet,
+    scroll_alpha: {
+      ...config.networks?.scroll_alpha,
       accounts: JSON.parse(process.env.ACCOUNT_PRIVATE_KEYS),
     },
-    evmos_mainnet: {
-      ...config.networks?.evmos_mainnet,
+    goerli: {
+      ...config.networks?.goerli,
+      accounts: JSON.parse(process.env.ACCOUNT_PRIVATE_KEYS),
+    },
+    sepolia: {
+      ...config.networks?.sepolia,
       accounts: JSON.parse(process.env.ACCOUNT_PRIVATE_KEYS),
     },
   }
